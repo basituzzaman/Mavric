@@ -67,4 +67,3 @@ If your API host differs, set `NEXT_PUBLIC_API_BASE_URL` in each frontend app.
 
 Default configured value in both frontends:
 - `http://127.0.0.1:8000/api`
-
