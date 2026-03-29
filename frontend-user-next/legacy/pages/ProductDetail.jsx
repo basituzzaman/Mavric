@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById } from '../services/api';
 import { useCart } from '../context/CartContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import { FiMinus, FiPlus, FiShoppingCart } from 'react-icons/fi';
 
 const ProductDetail = () => {
@@ -44,11 +42,9 @@ const ProductDetail = () => {
     if (loading) {
         return (
             <div className="min-h-screen bg-white">
-                <Header />
                 <div className="container mx-auto px-4 py-20 text-center">
                     Loading product details...
                 </div>
-                <Footer />
             </div>
         );
     }
@@ -56,7 +52,6 @@ const ProductDetail = () => {
     if (!product) {
         return (
             <div className="min-h-screen bg-white">
-                <Header />
                 <div className="container mx-auto px-4 py-20 text-center">
                     <h2 className="text-2xl font-bold mb-4">Product not found</h2>
                     <button 
@@ -66,15 +61,12 @@ const ProductDetail = () => {
                         Back to Home
                     </button>
                 </div>
-                <Footer />
             </div>
         );
     }
 
     return (
         <div className="min-h-screen bg-white">
-            <Header />
-            
             <div className="container mx-auto px-4 py-8">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid md:grid-cols-2 gap-8">
@@ -193,8 +185,6 @@ const ProductDetail = () => {
                     </div>
                 </div>
             </div>
-
-            <Footer />
         </div>
     );
 };

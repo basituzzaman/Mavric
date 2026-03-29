@@ -11,7 +11,7 @@ class SliderController extends Controller
     {
         return response()->json([
             'success' => true,
-            'sliders' => Slider::where('is_active', true)->orderBy('order_position')->get(),
+            'sliders' => Slider::where('is_active', true)->orderBy('order_position')->limit(3)->get(),
         ]);
     }
 }

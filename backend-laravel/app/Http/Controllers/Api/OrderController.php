@@ -38,6 +38,8 @@ class OrderController extends Controller
                     'customer_phone' => $data['customer_phone'],
                     'customer_email' => $data['customer_email'] ?? null,
                     'delivery_address' => $data['delivery_address'],
+                    'delivery_zone' => $data['delivery_zone'] ?? 'inside',
+                    'delivery_charge' => $data['delivery_charge'] ?? ($data['delivery_zone'] === 'outside' ? 120 : 70),
                     'total_amount' => $data['total_amount'],
                     'payment_method' => $data['payment_method'] ?? 'Cash on Delivery',
                     'status' => $data['status'] ?? 'pending',

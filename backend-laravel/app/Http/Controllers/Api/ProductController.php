@@ -25,6 +25,11 @@ class ProductController extends Controller
             $query->where('brand_id', $request->query('brand_id'));
         }
 
+        if ($request->filled('featured')) {
+            $featured = filter_var($request->query('featured'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            $query->where('is_featured', $featured ?? ((int) $request->query('featured') === 1));
+        }
+
         if ($request->filled('search')) {
             $search = $request->query('search');
             $query->where(function ($q) use ($search): void {
@@ -65,6 +70,7 @@ class ProductController extends Controller
 
         $images = array_values(array_unique(array_filter($images, fn ($image) => is_string($image) && trim($image) !== '' && $image !== $product->image_url)));
         $data['additional_images'] = $images;
+        $data['features'] = is_array($product->features) ? $product->features : [];
 
         return $data;
     }

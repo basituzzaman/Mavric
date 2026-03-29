@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FiEdit, FiTrash2, FiPlus, FiX } from 'react-icons/fi';
-import { getAdminBrands, createBrand, updateBrand, deleteBrand, uploadFile } from '../services/api';
+import { FiEdit, FiTrash2, FiPlus, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { getAdminBrands, createBrand, updateBrand, deleteBrand, uploadFile, ASSET_BASE_URL } from '../services/api';
 
 const Brands = () => {
     const [brands, setBrands] = useState([]);
@@ -13,6 +13,14 @@ const Brands = () => {
         logo_url: ''
     });
     const [uploading, setUploading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const brandsPerPage = 20;
+
+    const getLogoUrl = (logoUrl) => {
+        if (!logoUrl) return '';
+        if (/^https?:\/\//i.test(logoUrl)) return logoUrl;
+        return `${ASSET_BASE_URL}${logoUrl.startsWith('/') ? '' : '/'}${logoUrl}`;
+    };
 
     useEffect(() => {
         fetchBrands();
@@ -99,6 +107,24 @@ const Brands = () => {
         setShowModal(true);
     };
 
+    // Pagination calculations
+    const totalBrands = brands.length;
+    const totalPages = Math.ceil(totalBrands / brandsPerPage);
+    const startIndex = (currentPage - 1) * brandsPerPage;
+    const endIndex = startIndex + brandsPerPage;
+    const currentBrands = brands.slice(startIndex, endIndex);
+    const startItem = startIndex + 1;
+    const endItem = Math.min(endIndex, totalBrands);
+
+    // Generate page numbers array
+    const getPageNumbers = () => {
+        const pages = [];
+        for (let i = 1; i <= totalPages; i++) {
+            pages.push(i);
+        }
+        return pages;
+    };
+
     if (loading) {
         return <div className="text-center py-10">Loading...</div>;
     }
@@ -130,12 +156,12 @@ const Brands = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                        {Array.isArray(brands) && brands.map((brand) => (
+                        {currentBrands.map((brand) => (
                             <tr key={brand.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4">
                                     {brand.logo_url ? (
                                         <img
-                                            src={`http://localhost/mavric-backend${brand.logo_url}`}
+                                            src={getLogoUrl(brand.logo_url)}
                                             alt={brand.name}
                                             className="w-16 h-16 object-contain"
                                         />
@@ -174,6 +200,56 @@ const Brands = () => {
                         ))}
                     </tbody>
                 </table>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="mt-6 space-y-4">
+                        {/* Showing text */}
+                        <p className="text-sm text-gray-500 text-center">
+                            Showing {startItem}–{endItem} of {totalBrands} brands
+                        </p>
+
+                        {/* Pagination buttons */}
+                        <div className="flex justify-center items-center gap-2">
+                            {/* Previous Button */}
+                            <button
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
+                            >
+                                <FiChevronLeft size={16} />
+                                Previous
+                            </button>
+
+                            {/* Page Numbers */}
+                            <div className="flex gap-1">
+                                {getPageNumbers().map(pageNum => (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => setCurrentPage(pageNum)}
+                                        className={`min-w-[40px] h-10 px-3 rounded-lg text-sm font-medium transition ${
+                                            currentPage === pageNum
+                                                ? 'bg-black text-white'
+                                                : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                                        }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Next Button */}
+                            <button
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
+                            >
+                                Next
+                                <FiChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Modal */}
@@ -227,7 +303,7 @@ const Brands = () => {
                                 {uploading && <p className="text-sm text-blue-600 mt-1">Uploading...</p>}
                                 {formData.logo_url && (
                                     <img
-                                        src={`http://localhost/mavric-backend${formData.logo_url}`}
+                                        src={getLogoUrl(formData.logo_url)}
                                         alt="Preview"
                                         className="mt-2 w-24 h-24 object-contain border rounded"
                                     />

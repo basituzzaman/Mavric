@@ -25,7 +25,8 @@ const EditProduct = () => {
         stock_quantity: 0,
         brand_id: null,
         is_active: true,
-        is_best_seller: false,
+        is_featured: false,
+        second_badge_text: '',
         product_status: 'active',
         features: []
     });
@@ -78,7 +79,8 @@ const EditProduct = () => {
                     stock_quantity: response.data.product.stock_quantity || 0,
                     brand_id: response.data.product.brand_id || null,
                     is_active: response.data.product.is_active !== undefined ? response.data.product.is_active : true,
-                    is_best_seller: response.data.product.is_best_seller !== undefined ? response.data.product.is_best_seller : additionalFields.is_best_seller || false,
+                    is_featured: response.data.product.is_featured !== undefined ? response.data.product.is_featured : false,
+                    second_badge_text: response.data.product.second_badge_text || '',
                     product_status: response.data.product.product_status || 'active',
                     features: response.data.product.features || additionalFields.features || []
                 };
@@ -221,7 +223,6 @@ const EditProduct = () => {
                 const additionalFields = {
                     product_code: formData.product_code,
                     features: formData.features,
-                    is_best_seller: formData.is_best_seller,
                     additional_images: formData.additional_images
                 };
                 localStorage.setItem(`product_${id}_additional`, JSON.stringify(additionalFields));
@@ -452,6 +453,31 @@ const EditProduct = () => {
                                     />
                                 </div>
 
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        name="is_featured"
+                                        checked={formData.is_featured}
+                                        onChange={handleChange}
+                                        className="mr-2"
+                                    />
+                                    <label className="text-sm font-medium text-gray-700">Add to Featured List</label>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Top Right Badge</label>
+                                    <select
+                                        name="second_badge_text"
+                                        value={formData.second_badge_text}
+                                        onChange={handleChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                    >
+                                        <option value="">None</option>
+                                        <option value="Sale">Sale</option>
+                                        <option value="Best Seller">Best Seller</option>
+                                    </select>
+                                </div>
+
                                 {/* Image Upload Section */}
                                 <div className="space-y-4">
                                     <div>
@@ -497,16 +523,6 @@ const EditProduct = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        name="is_best_seller"
-                                        checked={formData.is_best_seller}
-                                        onChange={handleChange}
-                                        className="mr-2"
-                                    />
-                                    <label className="text-sm font-medium text-gray-700">Best Seller</label>
-                                </div>
                             </div>
                         </div>
 

@@ -139,86 +139,112 @@ const SearchModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 px-4">
+        <div className="fixed inset-0 z-50 bg-black/30 flex items-start justify-center pt-24 px-4">
             <div 
                 ref={searchRef}
-                className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden"
+                className="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden"
+                style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)' }}
             >
-                {/* Search Input */}
-                <div className="p-4 border-b border-gray-200">
+                {/* Search Header */}
+                <div className="p-4">
                     <div className="flex items-center gap-3">
-                        <FiSearch className="text-gray-400" size={24} />
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search by product name or brand..."
-                            className="flex-1 text-lg outline-none"
-                            autoFocus
-                        />
-                        {searchQuery && (
-                            <button
-                                onClick={handleClearSearch}
-                                className="text-gray-400 hover:text-gray-600 transition"
-                            >
-                                <FiX size={20} />
-                            </button>
-                        )}
+                        {/* Search Input Container */}
+                        <div className="flex-1 relative">
+                            <FiSearch 
+                                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" 
+                                size={20} 
+                            />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search by product name or brand..."
+                                className="w-full outline-none text-gray-800 placeholder-gray-400"
+                                style={{
+                                    backgroundColor: '#F5F5F5',
+                                    borderRadius: '12px',
+                                    padding: '12px 16px 12px 44px',
+                                    fontSize: '16px'
+                                }}
+                                autoFocus
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={handleClearSearch}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                                >
+                                    <FiX size={18} />
+                                </button>
+                            )}
+                        </div>
+                        
+                        {/* Close Button */}
                         <button
                             onClick={onClose}
-                            className="text-gray-400 hover:text-gray-600 transition"
+                            className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-full transition"
                         >
                             <FiX size={24} />
                         </button>
                     </div>
                 </div>
 
-                {/* Search Results */}
-                <div className="overflow-y-auto max-h-[calc(80vh-80px)]">
+                {/* Divider */}
+                <div className="border-t border-gray-100"></div>
+
+                {/* Search Results Area */}
+                <div className="overflow-y-auto max-h-[50vh]">
+                    {/* Empty State - Placeholder */}
+                    {!loading && !error && !noResults && searchResults.length === 0 && (
+                        <div className="p-10 text-center">
+                            <FiSearch size={40} className="mx-auto mb-4 text-gray-300" />
+                            <p className="text-gray-400 text-sm" style={{ color: '#9CA3AF' }}>
+                                Start typing to search for watches...
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Loading State */}
                     {loading && (
-                        <div className="p-8 text-center text-gray-500">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-                            Searching...
+                        <div className="p-8 text-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-3"></div>
+                            <p className="text-gray-500 text-sm">Searching...</p>
                         </div>
                     )}
 
-                    {!loading && searchQuery === '' && (
-                        <div className="p-8 text-center text-gray-500">
-                            <FiSearch size={48} className="mx-auto mb-3 text-gray-300" />
-                            <p>Start typing to search for watches...</p>
-                        </div>
-                    )}
-
+                    {/* Error State */}
                     {!loading && error && (
-                        <div className="p-8 text-center text-red-500">
-                            <p className="text-lg font-semibold mb-2">Search Error</p>
-                            <p className="text-sm">{error}</p>
+                        <div className="p-6 text-center">
+                            <p className="text-red-500 text-sm">{error}</p>
                         </div>
                     )}
 
+                    {/* No Results State */}
                     {!loading && noResults && searchQuery !== '' && !error && (
-                        <div className="p-8 text-center text-gray-500">
-                            <p className="text-lg font-semibold mb-2">No results found for "{searchQuery}"</p>
-                            <p className="text-sm">
+                        <div className="p-6 text-center">
+                            <p className="text-gray-600 font-medium mb-1">
+                                No results found for &quot;{searchQuery}&quot;
+                            </p>
+                            <p className="text-gray-400 text-sm">
                                 Try searching with different keywords or brand names
                             </p>
                         </div>
                     )}
 
+                    {/* Results List */}
                     {!loading && searchResults.length > 0 && (
-                        <div className="p-4">
-                            <p className="text-sm text-gray-500 mb-3">
-                                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found for "{searchQuery}"
+                        <div className="p-2">
+                            <p className="text-xs text-gray-500 px-2 py-2">
+                                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found
                             </p>
-                            <div className="space-y-2">
+                            <div className="space-y-1">
                                 {searchResults.map((product) => (
                                     <button
                                         key={product.id}
                                         onClick={() => handleProductClick(product.id)}
-                                        className="w-full flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition text-left"
+                                        className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition text-left"
                                     >
                                         {/* Product Image */}
-                                        <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+                                        <div className="w-14 h-14 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
                                             <img
                                                 src={product.image_url ? `${ASSET_BASE_URL}${product.image_url}` : `https://picsum.photos/seed/watch${product.id}/150/150.jpg`}
                                                 alt={product.name}
@@ -231,16 +257,16 @@ const SearchModal = ({ isOpen, onClose }) => {
 
                                         {/* Product Info */}
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-gray-900 truncate">
+                                            <p className="font-semibold text-gray-900 truncate text-sm">
                                                 {product.name}
                                             </p>
                                             {product.brand_name && (
-                                                <p className="text-sm text-gray-500">
+                                                <p className="text-xs text-gray-500">
                                                     {product.brand_name}
                                                 </p>
                                             )}
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="font-bold text-gray-900">
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className="font-bold text-gray-900 text-sm">
                                                     BDT {parseFloat(product.price).toLocaleString()}
                                                 </span>
                                                 {product.original_price > product.price && (
@@ -254,7 +280,7 @@ const SearchModal = ({ isOpen, onClose }) => {
                                         {/* Discount Badge */}
                                         {product.discount_percentage > 0 && (
                                             <div className="flex-shrink-0">
-                                                <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                                                <span className="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded">
                                                     {product.discount_percentage}% OFF
                                                 </span>
                                             </div>

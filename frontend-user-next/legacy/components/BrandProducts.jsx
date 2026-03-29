@@ -58,7 +58,7 @@ const BrandProducts = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <div className="sticky top-0 z-50 bg-white shadow-md">
+            <div className="sticky top-16 z-40 bg-white shadow-md">
                 <div className="flex items-center justify-between px-4 py-3 h-16">
                     <button 
                         onClick={() => navigate(-1)}
@@ -102,10 +102,10 @@ const BrandProducts = () => {
                 {/* Products Grid - Same style as featured products */}
                 {products.length > 0 ? (
                     <div>
-                        <div className="flex justify-between items-center mb-6">
+                        <div className="flex justify-between items-center mb-6" style={{ paddingLeft: '16px', paddingRight: '16px' }}>
                             <h2 className="text-2xl font-bold">Watches</h2>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" style={{ paddingLeft: '16px', paddingRight: '16px' }}>
                             {products.map(product => (
                                 <ProductCard key={product.id} product={product} />
                             ))}

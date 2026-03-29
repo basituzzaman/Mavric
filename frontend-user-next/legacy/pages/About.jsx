@@ -1,6 +1,4 @@
 import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import { FiShield, FiTruck, FiAward, FiHeadphones } from 'react-icons/fi';
 
 const About = () => {
@@ -36,8 +34,6 @@ const About = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            <Header />
-
             {/* Hero Section */}
             <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-20">
                 <div className="container mx-auto px-4 text-center">
@@ -199,7 +195,6 @@ const About = () => {
                 </div>
             </div>
 
-            <Footer />
         </div>
     );
 };

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { createOrder } from '../services/api';
-import { FaWhatsapp } from 'react-icons/fa';
-import { FiTrash2 } from 'react-icons/fi';
+import { createOrder, ASSET_BASE_URL } from '../services/api';
+import { FiTrash2, FiMinus, FiPlus, FiChevronRight } from 'react-icons/fi';
 
 const CheckoutForm = () => {
     const navigate = useNavigate();
-    const { cart, getTotalAmount, clearCart, removeFromCart } = useCart();
+    const { cart, getTotalAmount, clearCart, removeFromCart, updateQuantity } = useCart();
+    const [deliveryZone, setDeliveryZone] = useState('inside');
     const [formData, setFormData] = useState({
         customer_name: '',
         customer_phone: '',
@@ -15,6 +15,9 @@ const CheckoutForm = () => {
         delivery_address: ''
     });
     const [loading, setLoading] = useState(false);
+
+    const deliveryCharge = deliveryZone === 'inside' ? 70 : 120;
+    const totalWithDelivery = getTotalAmount() + deliveryCharge;
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,7 +30,9 @@ const CheckoutForm = () => {
         try {
             const orderData = {
                 ...formData,
-                total_amount: getTotalAmount(),
+                total_amount: totalWithDelivery,
+                delivery_charge: deliveryCharge,
+                delivery_zone: deliveryZone,
                 payment_method: 'Cash on Delivery',
                 items: cart.map(item => ({
                     product_id: item.id,
@@ -40,14 +45,35 @@ const CheckoutForm = () => {
             const response = await createOrder(orderData);
             
             if (response.data.success) {
-                alert('Order placed successfully!');
+                // Save order to localStorage for customer view
+                const orderData = {
+                    id: response.data.order_id || Date.now(),
+                    order_number: response.data.order_number || `ORD-${Date.now()}`,
+                    customer_name: formData.customer_name,
+                    customer_phone: formData.customer_phone,
+                    customer_email: formData.customer_email,
+                    delivery_address: formData.delivery_address,
+                    delivery_zone: deliveryZone,
+                    delivery_charge: deliveryCharge,
+                    total_amount: totalWithDelivery,
+                    status: 'pending',
+                    payment_method: 'Cash on Delivery',
+                    items: cart.map(item => ({
+                        product_id: item.id,
+                        product_name: item.name,
+                        quantity: item.quantity,
+                        price: item.price
+                    })),
+                    created_at: new Date().toISOString()
+                };
+
+                // Get existing orders or create new array
+                const existingOrders = JSON.parse(localStorage.getItem('customerOrders') || '[]');
+                existingOrders.push(orderData);
+                localStorage.setItem('customerOrders', JSON.stringify(existingOrders));
+
                 clearCart();
-                
-                // WhatsApp message
-                const message = `New Order: ${response.data.order_number}\nName: ${formData.customer_name}\nPhone: ${formData.customer_phone}\nAddress: ${formData.delivery_address}\nTotal: ${getTotalAmount()} BDT`;
-                window.open(`https://wa.me/8801890020483?text=${encodeURIComponent(message)}`, '_blank');
-                
-                navigate('/');
+                navigate('/thank-you');
             }
         } catch (error) {
             console.error('Order creation error:', error);
@@ -72,58 +98,118 @@ const CheckoutForm = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-6">
-            <h2 className="text-3xl font-bold mb-6">Checkout</h2>
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+                <Link to="/" className="hover:text-black transition">Home</Link>
+                <FiChevronRight size={16} />
+                <span className="text-black font-medium">Checkout</span>
+            </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-                {/* Order Form */}
-                <div>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Contact */}
+            {/* Place Order Title */}
+            <h1 className="text-3xl font-bold text-black mb-8">Place order</h1>
+
+            <div className="grid lg:grid-cols-5 gap-8">
+                {/* Order Form - Left Side (3 columns) */}
+                <div className="lg:col-span-3">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Contact Section */}
                         <div>
-                            <h3 className="font-semibold text-lg mb-3">Contact Information</h3>
-                            <div className="space-y-3">
-                                <input
-                                    type="text"
-                                    name="customer_name"
-                                    placeholder="Your Name"
-                                    required
-                                    value={formData.customer_name}
-                                    onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"
-                                />
-                                <input
-                                    type="tel"
-                                    name="customer_phone"
-                                    placeholder="Phone Number"
-                                    required
-                                    value={formData.customer_phone}
-                                    onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"
-                                />
-                                <input
-                                    type="email"
-                                    name="customer_email"
-                                    placeholder="Email (optional)"
-                                    value={formData.customer_email}
-                                    onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"
-                                />
+                            <h3 className="font-bold text-lg mb-4">Contact</h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Phone number <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-3 bg-white">
+                                            <span className="text-lg">🇧🇩</span>
+                                            <span className="text-gray-600">(+880)</span>
+                                        </div>
+                                        <input
+                                            type="tel"
+                                            name="customer_phone"
+                                            placeholder="Phone number"
+                                            required
+                                            value={formData.customer_phone}
+                                            onChange={handleChange}
+                                            className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Delivery Address */}
+                        {/* Personal Info Section */}
                         <div>
-                            <h3 className="font-semibold text-lg mb-3">Delivery Address</h3>
-                            <textarea
-                                name="delivery_address"
-                                placeholder="Full Address"
-                                required
-                                rows="3"
-                                value={formData.delivery_address}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"
-                            />
+                            <h3 className="font-bold text-lg mb-4">Personal Info</h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Full Name<span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="customer_name"
+                                        placeholder="Full Name"
+                                        required
+                                        value={formData.customer_name}
+                                        onChange={handleChange}
+                                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Address Section */}
+                        <div>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Address<span className="text-red-500">*</span>
+                                    </label>
+                                    <textarea
+                                        name="delivery_address"
+                                        placeholder="Address"
+                                        required
+                                        rows="3"
+                                        value={formData.delivery_address}
+                                        onChange={handleChange}
+                                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Delivery Zone Section */}
+                        <div>
+                            <h3 className="font-bold text-lg mb-4">
+                                Delivery Zone <span className="text-red-500">*</span>
+                            </h3>
+                            <div className="flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setDeliveryZone('inside')}
+                                    className={`px-6 py-3 rounded-full border-2 font-medium transition ${
+                                        deliveryZone === 'inside'
+                                            ? 'border-black bg-black text-white'
+                                            : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                                    }`}
+                                >
+                                    Inside Dhaka
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setDeliveryZone('outside')}
+                                    className={`px-6 py-3 rounded-full border-2 font-medium transition ${
+                                        deliveryZone === 'outside'
+                                            ? 'border-black bg-black text-white'
+                                            : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                                    }`}
+                                >
+                                    Outside Dhaka
+                                </button>
+                            </div>
                         </div>
 
                         {/* Payment Method */}
@@ -147,22 +233,41 @@ const CheckoutForm = () => {
                     </form>
                 </div>
 
-                {/* Order Summary */}
-                <div>
-                    <div className="bg-gray-50 rounded-lg p-6 sticky top-20">
+                {/* Order Summary - Right Side (2 columns) */}
+                <div className="lg:col-span-2">
+                    <div className="bg-white rounded-lg p-6 sticky top-20">
                         <h3 className="font-semibold text-lg mb-4">Order Summary</h3>
                         
                         <div className="space-y-4 max-h-96 overflow-y-auto">
                             {cart.map(item => (
-                                <div key={item.id} className="flex gap-3 bg-white p-3 rounded-lg">
+                                <div key={item.id} className="flex gap-3 bg-gray-50 p-3 rounded-lg">
                                     <img 
-                                        src={`http://localhost/mavric-backend${item.image_url}`} 
+                                        src={`${ASSET_BASE_URL}${item.image_url}`} 
                                         alt={item.name} 
                                         className="w-20 h-20 object-cover rounded"
                                     />
                                     <div className="flex-1">
                                         <h4 className="font-semibold text-sm mb-1">{item.name}</h4>
-                                        <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                                        <div className="mt-2">
+                                            <p className="text-sm font-medium mb-1">Quantity</p>
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                    className="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
+                                                >
+                                                    <FiMinus size={14} />
+                                                </button>
+                                                <span className="text-base font-semibold w-6 text-center">{item.quantity}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                    className="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
+                                                >
+                                                    <FiPlus size={14} />
+                                                </button>
+                                            </div>
+                                        </div>
                                         <p className="font-bold text-sm mt-1">
                                             BDT {(item.price * item.quantity).toLocaleString()}
                                         </p>
@@ -177,33 +282,23 @@ const CheckoutForm = () => {
                             ))}
                         </div>
 
-                        <div className="border-t mt-4 pt-4">
-                            <div className="flex justify-between text-sm mb-2">
+                        <div className="border-t mt-4 pt-4 space-y-2">
+                            <div className="flex justify-between text-sm">
                                 <span>Subtotal</span>
                                 <span>BDT {getTotalAmount().toLocaleString()}</span>
                             </div>
-                            <div className="flex justify-between text-sm mb-2">
+                            <div className="flex justify-between text-sm">
                                 <span>Delivery</span>
-                                <span>Free</span>
+                                <span>BDT {deliveryCharge}</span>
                             </div>
                             <div className="flex justify-between text-xl font-bold border-t pt-3">
                                 <span>Total</span>
-                                <span>BDT {getTotalAmount().toLocaleString()}</span>
+                                <span>BDT {totalWithDelivery.toLocaleString()}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            {/* WhatsApp Button */}
-            <a
-                href="https://wa.me/8801890020483"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition z-50"
-            >
-                <FaWhatsapp size={32} />
-            </a>
         </div>
     );
 };

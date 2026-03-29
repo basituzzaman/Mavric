@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiMenu, FiSearch, FiShoppingCart, FiX } from 'react-icons/fi';
+import { FiMenu, FiSearch, FiShoppingCart } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 import SearchModal from './SearchModal';
 
@@ -11,38 +11,48 @@ const Header = () => {
 
     return (
         <>
-            <header className="sticky top-0 z-50 bg-white shadow-md">
-                <div className="flex items-center justify-between px-4 py-3 h-16">
+            <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
+                <div style={{ paddingLeft: '16px', paddingRight: '16px' }} className="ui-container flex items-center justify-between h-[66px]">
                     {/* Menu Button */}
-                    <button 
-                        onClick={() => setMenuOpen(!menuOpen)} 
-                        className="p-2 hover:bg-gray-100 rounded-lg transition"
+                    <button
+                        onClick={() => setMenuOpen(!menuOpen)}
+                        className="group p-2 rounded-xl hover:bg-gray-100 transition"
+                        aria-label="Toggle menu"
                     >
-                        <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-                            <FiMenu className="text-white text-xs" />
+                        <div className="w-7 h-7 bg-black rounded-full flex items-center justify-center shadow-sm">
+                            <FiMenu className="text-white text-[11px]" />
                         </div>
                     </button>
 
                     {/* Logo */}
-                    <Link to="/" className="flex-1 text-center flex justify-center items-center relative h-16">
-                        <img src="/logo.png" alt="MAVRIC" className="absolute h-[32rem] w-auto object-contain" />
+                    <Link to="/" className="flex-1 flex justify-center items-center h-full">
+                        <img
+                            src="/logo.png"
+                            alt="MAVRIC"
+                            className="h-10 sm:h-11 w-auto object-contain pointer-events-none select-none"
+                        />
                     </Link>
 
                     {/* Right Icons */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                         {/* Search Button */}
-                        <button 
+                        <button
                             onClick={() => setSearchOpen(true)}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition"
+                            className="h-10 w-10 inline-flex items-center justify-center rounded-xl hover:bg-gray-100 transition"
+                            aria-label="Search products"
                         >
-                            <FiSearch size={22} />
+                            <FiSearch size={21} />
                         </button>
-                        
+
                         {/* Cart Button */}
-                        <Link to="/checkout" className="p-2 relative hover:bg-gray-100 rounded-lg transition">
-                            <FiShoppingCart size={22} />
+                        <Link
+                            to="/checkout"
+                            className="h-10 w-10 inline-flex items-center justify-center rounded-xl hover:bg-gray-100 transition relative"
+                            aria-label="Go to checkout"
+                        >
+                            <FiShoppingCart size={21} />
                             {getTotalItems() > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-semibold border border-white">
                                     {getTotalItems()}
                                 </span>
                             )}
@@ -52,43 +62,45 @@ const Header = () => {
 
                 {/* Mobile Menu */}
                 {menuOpen && (
-                    <nav className="bg-gray-50 border-t">
-                        <Link 
-                            to="/" 
-                            onClick={() => setMenuOpen(false)}
-                            className="block py-3 px-4 hover:bg-gray-100 transition"
-                        >
-                            Home
-                        </Link>
-                        <Link 
-                            to="/all-products" 
-                            onClick={() => setMenuOpen(false)}
-                            className="block py-3 px-4 hover:bg-gray-100 transition"
-                        >
-                            All Products
-                        </Link>
-                        <Link 
-                            to="/brands" 
-                            onClick={() => setMenuOpen(false)}
-                            className="block py-3 px-4 hover:bg-gray-100 transition"
-                        >
-                            Brands
-                        </Link>
-                        <Link 
-                            to="/about" 
-                            onClick={() => setMenuOpen(false)}
-                            className="block py-3 px-4 hover:bg-gray-100 transition"
-                        >
-                            About Us
-                        </Link>
+                    <nav className="border-t border-gray-200 bg-white">
+                        <div className="ui-container py-2">
+                            <Link
+                                to="/"
+                                onClick={() => setMenuOpen(false)}
+                                className="block py-2.5 px-4 rounded-lg hover:bg-gray-100 transition font-medium text-gray-700"
+                            >
+                                Home
+                            </Link>
+                            <Link
+                                to="/all-products"
+                                onClick={() => setMenuOpen(false)}
+                                className="block py-2.5 px-4 rounded-lg hover:bg-gray-100 transition font-medium text-gray-700"
+                            >
+                                All Products
+                            </Link>
+                            <Link
+                                to="/brands"
+                                onClick={() => setMenuOpen(false)}
+                                className="block py-2.5 px-4 rounded-lg hover:bg-gray-100 transition font-medium text-gray-700"
+                            >
+                                Brands
+                            </Link>
+                            <Link
+                                to="/about"
+                                onClick={() => setMenuOpen(false)}
+                                className="block py-2.5 px-4 rounded-lg hover:bg-gray-100 transition font-medium text-gray-700"
+                            >
+                                About Us
+                            </Link>
+                        </div>
                     </nav>
                 )}
             </header>
 
             {/* Search Modal */}
-            <SearchModal 
-                isOpen={searchOpen} 
-                onClose={() => setSearchOpen(false)} 
+            <SearchModal
+                isOpen={searchOpen}
+                onClose={() => setSearchOpen(false)}
             />
         </>
     );

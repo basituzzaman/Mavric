@@ -19,7 +19,8 @@ const AddProduct = () => {
         stock_quantity: 0,
         brand_id: null,
         is_active: true,
-        is_best_seller: false,
+        is_featured: false,
+        second_badge_text: '',
         product_status: 'active',
         features: [],
     });
@@ -231,6 +232,31 @@ const AddProduct = () => {
                                     />
                                 </div>
 
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        name="is_featured"
+                                        checked={formData.is_featured}
+                                        onChange={handleChange}
+                                        className="mr-2"
+                                    />
+                                    <label className="text-sm font-medium text-gray-700">Add to Featured List</label>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Top Right Badge</label>
+                                    <select
+                                        name="second_badge_text"
+                                        value={formData.second_badge_text}
+                                        onChange={handleChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    >
+                                        <option value="">None</option>
+                                        <option value="Sale">Sale</option>
+                                        <option value="Best Seller">Best Seller</option>
+                                    </select>
+                                </div>
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Primary Image</label>
                                     <input type="file" name="image_file" onChange={handleImageUpload} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
@@ -272,10 +298,6 @@ const AddProduct = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center">
-                                    <input type="checkbox" name="is_best_seller" checked={formData.is_best_seller} onChange={handleChange} className="mr-2" />
-                                    <label className="text-sm font-medium text-gray-700">Best Seller</label>
-                                </div>
                             </div>
                         </div>
 

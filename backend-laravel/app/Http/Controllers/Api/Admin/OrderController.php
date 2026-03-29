@@ -15,9 +15,25 @@ class OrderController extends Controller
             $query->where('status', $request->query('status'));
         }
 
+        $orders = $query
+            ->with(['items:id,order_id,product_id,quantity'])
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function (Order $order): array {
+                $data = $order->toArray();
+                $data['product_ids'] = $order->items
+                    ->pluck('product_id')
+                    ->filter(fn ($id) => !is_null($id))
+                    ->values()
+                    ->all();
+
+                return $data;
+            })
+            ->values();
+
         return response()->json([
             'success' => true,
-            'orders' => $query->orderByDesc('created_at')->get(),
+            'orders' => $orders,
         ]);
     }
 

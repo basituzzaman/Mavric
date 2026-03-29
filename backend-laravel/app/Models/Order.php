@@ -13,6 +13,8 @@ class Order extends Model
         'customer_phone',
         'customer_email',
         'delivery_address',
+        'delivery_zone',
+        'delivery_charge',
         'total_amount',
         'payment_method',
         'status',

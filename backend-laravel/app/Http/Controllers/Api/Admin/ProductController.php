@@ -85,8 +85,30 @@ class ProductController extends Controller
 
     private function normalizePayload(array $data): array
     {
+        if (array_key_exists('product_code', $data)) {
+            $data['product_code'] = is_string($data['product_code']) ? trim($data['product_code']) : null;
+            if ($data['product_code'] === '') {
+                $data['product_code'] = null;
+            }
+        }
+
         if (array_key_exists('additional_images', $data) && is_array($data['additional_images'])) {
             $data['additional_images'] = array_values(array_filter($data['additional_images']));
+        }
+
+        if (array_key_exists('features', $data)) {
+            if (is_string($data['features'])) {
+                $data['features'] = preg_split('/[\r\n,]+/', $data['features']) ?: [];
+            }
+
+            if (is_array($data['features'])) {
+                $data['features'] = array_values(array_filter(array_map(
+                    static fn ($feature) => is_string($feature) ? trim($feature) : '',
+                    $data['features']
+                )));
+            } else {
+                $data['features'] = [];
+            }
         }
 
         return $data;
@@ -110,6 +132,7 @@ class ProductController extends Controller
 
         $images = array_values(array_unique(array_filter($images, fn ($image) => is_string($image) && trim($image) !== '' && $image !== $product->image_url)));
         $data['additional_images'] = $images;
+        $data['features'] = is_array($product->features) ? $product->features : [];
 
         return $data;
     }

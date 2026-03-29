@@ -16,5 +16,6 @@ export const getProductById = (id) => api.get(`/products.php?id=${id}`);
 export const getBrands = () => api.get('/brands.php');
 export const getSliders = () => api.get('/sliders.php');
 export const createOrder = (data) => api.post('/orders.php', data);
+export const getCustomerOrders = () => api.get('/orders.php'); // Temporary - using orders endpoint
 
 export default api;

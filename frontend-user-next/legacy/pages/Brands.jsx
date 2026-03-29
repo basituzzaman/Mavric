@@ -47,7 +47,7 @@ const Brands = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <div className="sticky top-0 z-50 bg-white shadow-md">
+            <div className="sticky top-16 z-40 bg-white shadow-md">
                 <div className="flex items-center justify-between px-4 py-3 h-16">
                     <button 
                         onClick={() => navigate(-1)}
