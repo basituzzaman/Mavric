@@ -218,27 +218,36 @@ const ProductDetails = () => {
                             </div>
                         )}
 
+                        <div style={{height: '24px'}}></div>
+
                         <div className="flex flex-col items-center gap-3">
                             <button
                                 onClick={handleBuyNow}
+                                style={{paddingLeft: '48px', paddingRight: '48px'}}
                                 className="w-full max-w-lg bg-black border-2 border-black text-white py-5 rounded-xl text-xl font-semibold hover:bg-gray-800 transition"
                             >
                                 Order Now
                             </button>
                             <button
                                 onClick={handleAddToCart}
+                                style={{paddingLeft: '48px', paddingRight: '48px'}}
                                 className="w-full max-w-lg bg-white border-2 border-black text-black py-5 rounded-xl text-xl font-semibold hover:bg-gray-50 transition"
                             >
                                 Add to Cart
                             </button>
                         </div>
 
+                        <div style={{height: '24px'}}></div>
+
                         {product.description && (
-                            <div className="mt-6">
+                            <div className="mt-6 text-center">
                                 <h2 className="text-lg font-semibold mb-2">Description</h2>
                                 <p className="text-gray-600 whitespace-pre-line">{product.description}</p>
                             </div>
                         )}
+
+                        <div style={{height: '24px'}}></div>
+
                     </div>
                 </div>
             </div>
